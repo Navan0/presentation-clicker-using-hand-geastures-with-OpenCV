@@ -16,29 +16,40 @@ while True:
     blur = cv2.GaussianBlur(gray,(5,5),0)
     ret, thresh1 = cv2.threshold(blur,70,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
     contours, hierarchy = cv2.findContours(thresh1,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+    max_area = 0
+    ci = 0
     for i in range(len(contours)):
-
         cnt = contours[i]
         area = cv2.contourArea(cnt)
         if(area > max_area):
             max_area = area
             ci = i
         cnt = contours[ci]
-    hull = cv2.convexHull(cnt)
-    mask = mask = np.zeros_like(frame)
-    m = cv2.drawContours(frame,[cnt],0,(0,255,0),2)
+    #
+    #
+    # print(cnt)
+    # The index of the contour that surrounds your object
+    mask = np.zeros_like(frame) # Create mask where white is what we want, black otherwise
+    n =cv2.drawContours(mask,[cnt],0,(0,255,0),2) # Draw filled contour in mask
+    m =cv2.drawContours(frame,[cnt],0,(0,255,0),2)
     out = np.zeros_like(frame) # Extract out the object and place into output image
     out[mask == 255] = frame[mask == 255]
 
+    a, d, alpha = cv2.split(frame)
+    gray_layer = cv2.cvtColor(out, cv2.COLOR_BGR2GRAY)
+    dst = cv2.merge((gray_layer, gray_layer, gray_layer, alpha))
 
 
     # cv2.drawContours(drawing,[hull],0,(0,0,255),2)
     cv2.namedWindow('image',cv2.WINDOW_NORMAL)
     cv2.resizeWindow('image', 300,300)
-    cv2.imshow('image', m)
+    cv2.imshow('image', dst)
     cv2.namedWindow('two',cv2.WINDOW_NORMAL)
     cv2.resizeWindow('two', 300,300)
-    cv2.imshow('two', out)
+    cv2.imshow('two', m)
+    cv2.namedWindow('three',cv2.WINDOW_NORMAL)
+    cv2.resizeWindow('three', 300,300)
+    cv2.imshow('three', out)
     # hands = hand_cascade.detectMultiScale(gray, 1.5, 2)
     # contour = hands
 
